@@ -1,78 +1,73 @@
-import { useReducer, useState, type CSSProperties } from "react";
+import { useReducer, useState, type CSSProperties } from "react"
 
-type CounterProps = {
-  hero: string;
-};
+type CounterAppProp = {
+    hero:string
+}
 
 type State = {
-  count: number;
-};
-type Action =
-  | { type: "INCREMENT" }
-  | { type: "DECREMENT" }
-  | { type: "RESET" }
-  | { type: "SET"; payload: number };
-const counterReducer = (state: State, action: Action) => {
-  switch (action.type) {
-    case "INCREMENT":
-      return { count: state.count + 1 };
-    case "DECREMENT":
-      return { count: Math.max(0, state.count - 1) };
-    case "RESET":
-      return { count: 0 };
-    case "SET":
-      return { count: Number(action.payload) || 0 };
-    default:
-      return state;
-  }
-};
-const CounterApp = ({ hero }: CounterProps) => {
-  const [state, dispatch] = useReducer(counterReducer, { count: 0 });
-  const [value, setValue] = useState<number>(0);
+    count: number
+}
+type Action = 
+| {type: "INCREMENT"} | {type: "DECREMENT"} | {type : "RESET"} | {type: "SET", payload: number}
+const counterReducer = (state:State, action: Action) => {
+    switch(action.type){
+        case "INCREMENT":
+            return { count: state.count + 1}
+        case "DECREMENT" :
+            return {count: Math.max(0, state.count - 1)}
+        case "RESET" :
+            return {count: 0}
+        case "SET":
+            return {count: Number(action.payload)}
+        default: 
+          return state
+    }
+}
 
-  const handleInput = () => {
-    dispatch({ type: "SET", payload: value });
-  };
-  return (
-    <section style={container}>
-      <h2>Counter App</h2>
-      <img src={hero} width={100} height={100} />
+const CounterApp = ({hero}:CounterAppProp) => {
+const [state, dispatch] = useReducer(counterReducer, {count:0})
+const [value, setValue] = useState<number>(0)
 
-      <h3 style={{
-        background: 'teal', padding: "1rem 1.4rem", borderRadius: "50%"
-      }}>{state.count}</h3>
-      <section style={{ display: "flex", gap: "1rem" }}>
-        <button onClick={() => dispatch({ type: "INCREMENT" })}>
-          Increment
-        </button>
-        <button onClick={() => dispatch({ type: "DECREMENT" })}>
-          Decrement
-        </button>
-        <button onClick={() => dispatch({ type: "RESET" })}>Reset</button>
-      <div style={inputBox}>
-        <input
-          type="number"
-          onChange={(e) => setValue(Number(e.target.value))} 
-          style={{maxWidth: 50}}
-          value={value}
-        />
-        <button onClick={handleInput}>Set</button>
-      </div>
-      </section>
-    </section>
-  );
-};
+const handleInputChange = () =>{
+   dispatch({type:"SET", payload: value})
+   setValue(0)
+}
+    return (
+        <section style={container}>
+            <h3>Counter App</h3>
+            <img src={hero} alt="hero" style={imgStyle} loading="lazy" />
+            <h2>{state.count}</h2>
+            <section style={sectionSTyle}>
+                <button onClick={()=>dispatch({type:"INCREMENT"})}>Increment</button>
+                <button disabled={state.count === 0} onClick={()=>dispatch({type:"DECREMENT"})}>Decrement</button>
+                <button disabled={state.count === 0} onClick={()=>dispatch({type:"RESET"})}>Reset</button>
+                <div style={sectionSTyle}>
+                    <input type="text" value={value} onChange={(e)=>setValue(Number(e.target.value))} />
+                    <button  disabled={value === 0} onClick={handleInputChange}>Set</button>
+                </div>
+            </section>
+        </section>
+    )
 
-export default CounterApp;
+}
 
-const container: CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "2rem"
-};
+export default CounterApp
 
-const inputBox : CSSProperties = {
-    // display:'flex',
+const container : CSSProperties = {
+    display:'flex',
+    justifyContent:'center',
+    flexDirection:'column',
+    alignItems:'center',
+    gap:'1rem'
+}
+
+const imgStyle : CSSProperties = {
+    width: 100,
+    height: 100,
+
+}
+
+const sectionSTyle : CSSProperties = {
+    display:'flex',
+    gap:"1rem"
 }
