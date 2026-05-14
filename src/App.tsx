@@ -5,7 +5,8 @@ import viteLogo from './assets/vite.svg'
 import './App.css'
 // import CounterApp from './component/counterApp/counter_reducer'
 // import DynamicSelection from './component/dynamic_checkbox'
-import DynamicNestedCheckbox from './component/nestedTreeview'
+// import DynamicNestedCheckbox from './component/nestedTreeview'
+import TodoApp from './component/kanbanTodo'
 
 function App() {
   // const [count, setCount] = useState(0)
@@ -14,7 +15,8 @@ function App() {
     <>
      {/* <CounterApp hero={heroImg} /> */}
      {/* <DynamicSelection logo={reactLogo} /> */}
-     <DynamicNestedCheckbox logo={viteLogo} />
+     {/* <DynamicNestedCheckbox logo={viteLogo} /> */}
+     <TodoApp logo={viteLogo} />
     </>
   )
 }
