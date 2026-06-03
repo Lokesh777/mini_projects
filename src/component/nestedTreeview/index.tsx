@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from "react";
 import { dummyData } from "./customData";
 import type { ItemCheckbox } from "./customData";
+import CustomInput from "../atoms/CustomInput";
 
 type DynamicNestedCheckboxProp = {
   logo: string;
@@ -126,7 +127,7 @@ const TreeView = ({ node, handleChange }: TreeviewProp) => {
           gap: "8px",
         }}
       >
-        <input
+        <CustomInput
           type="checkbox"
           name={node.label}
           checked={node.checked}

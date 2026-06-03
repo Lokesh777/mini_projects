@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useState, type CSSProperties } from "react";
+import CustomInput from "../atoms/CustomInput";
 
 type TodoProp = {
   logo: string;
@@ -30,16 +31,12 @@ const todoReducer = (state: Todos[], action: Action): Todos[] => {
 
     case "TOGGLE":
       return state.map((item) =>
-        item.id === action.id
-          ? { ...item, status: !item.status }
-          : item
+        item.id === action.id ? { ...item, status: !item.status } : item,
       );
 
     case "EDIT":
       return state.map((item) =>
-        item.id === action.id
-          ? { ...item, text: action.text }
-          : item
+        item.id === action.id ? { ...item, text: action.text } : item,
       );
 
     case "DELETE":
@@ -52,6 +49,98 @@ const todoReducer = (state: Todos[], action: Action): Todos[] => {
 
 const initialState: Todos[] = [];
 
+type RenderTasks = {
+  tasks: Todos[];
+  title: string;
+  editValue: string;
+  editId: number | null;
+  setEditValue: React.Dispatch<React.SetStateAction<string>>;
+  handleEdit: (id: number) => void;
+  openEdit: (item: Todos) => void;
+  dispatch: React.Dispatch<Action>;
+};
+const RenderTasks = ({
+  tasks,
+  title,
+  editValue,
+  editId,
+  setEditValue,
+  handleEdit,
+  dispatch,
+  openEdit,
+}: RenderTasks) => (
+  <section style={columnStyle}>
+    <div style={headerStyle}>
+      <h3>{title}</h3>
+      <span>{tasks.length}</span>
+    </div>
+
+    {tasks.length === 0 && <p style={emptyText}>No tasks available</p>}
+
+    {tasks.map((item) => (
+      <div key={item.id} style={cardStyle}>
+        {editId === item.id ? (
+          <>
+            <input
+              style={editInput}
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleEdit(item.id)}
+            />
+
+            <button style={primaryBtn} onClick={() => handleEdit(item.id)}>
+              Save
+            </button>
+          </>
+        ) : (
+          <>
+            <p
+              style={{
+                ...taskText,
+                textDecoration: item.status ? "line-through" : "none",
+                opacity: item.status ? 0.6 : 1,
+              }}
+            >
+              {item.text}
+            </p>
+
+            <div style={actionRow}>
+              <button
+                style={successBtn}
+                onClick={() =>
+                  dispatch({
+                    type: "TOGGLE",
+                    id: item.id,
+                  })
+                }
+              >
+                {item.status ? "Undo" : "Complete"}
+              </button>
+
+              <button style={secondaryBtn} onClick={() => openEdit(item)}>
+                Edit
+              </button>
+
+              <button
+                style={dangerBtn}
+                onClick={() =>
+                  dispatch({
+                    type: "DELETE",
+                    id: item.id,
+                  })
+                }
+              >
+                Delete
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    ))}
+  </section>
+);
+
+
 const TodoApp = ({ logo }: TodoProp) => {
   const [todos, dispatch] = useReducer(
     todoReducer,
@@ -59,7 +148,7 @@ const TodoApp = ({ logo }: TodoProp) => {
     (): Todos[] => {
       const data = localStorage.getItem("todos");
       return data ? JSON.parse(data) : [];
-    }
+    },
   );
 
   const [input, setInput] = useState("");
@@ -101,90 +190,6 @@ const TodoApp = ({ logo }: TodoProp) => {
     setEditValue(item.text);
   };
 
-  const renderTasks = (tasks: Todos[], title: string) => (
-    <section style={columnStyle}>
-      <div style={headerStyle}>
-        <h3>{title}</h3>
-        <span>{tasks.length}</span>
-      </div>
-
-      {tasks.length === 0 && (
-        <p style={emptyText}>No tasks available</p>
-      )}
-
-      {tasks.map((item) => (
-        <div key={item.id} style={cardStyle}>
-          {editId === item.id ? (
-            <>
-              <input
-                style={editInput}
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                onKeyDown={(e) =>
-                  e.key === "Enter" && handleEdit(item.id)
-                }
-              />
-
-              <button
-                style={primaryBtn}
-                onClick={() => handleEdit(item.id)}
-              >
-                Save
-              </button>
-            </>
-          ) : (
-            <>
-              <p
-                style={{
-                  ...taskText,
-                  textDecoration: item.status
-                    ? "line-through"
-                    : "none",
-                  opacity: item.status ? 0.6 : 1,
-                }}
-              >
-                {item.text}
-              </p>
-
-              <div style={actionRow}>
-                <button
-                  style={successBtn}
-                  onClick={() =>
-                    dispatch({
-                      type: "TOGGLE",
-                      id: item.id,
-                    })
-                  }
-                >
-                  {item.status ? "Undo" : "Complete"}
-                </button>
-
-                <button
-                  style={secondaryBtn}
-                  onClick={() => openEdit(item)}
-                >
-                  Edit
-                </button>
-
-                <button
-                  style={dangerBtn}
-                  onClick={() =>
-                    dispatch({
-                      type: "DELETE",
-                      id: item.id,
-                    })
-                  }
-                >
-                  Delete
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      ))}
-    </section>
-  );
-
   return (
     <section style={container}>
       <img src={logo} alt="logo" width={60} />
@@ -192,14 +197,12 @@ const TodoApp = ({ logo }: TodoProp) => {
       <h1 style={titleStyle}>Todo Manager</h1>
 
       <div style={inputWrapper}>
-        <input
+        <CustomInput
           style={inputStyle}
           value={input}
           placeholder="Add a new task..."
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) =>
-            e.key === "Enter" && handleAdd()
-          }
+          onKeyDown={(e) => e.key === "Enter" && handleAdd()}
         />
 
         <button style={primaryBtn} onClick={handleAdd}>
@@ -207,19 +210,39 @@ const TodoApp = ({ logo }: TodoProp) => {
         </button>
       </div>
 
-     <div className="board">
-        {renderTasks(todos, "All Tasks")}
+      <div className="board">
+        <RenderTasks
+          tasks={todos}
+          title={"All Tasks"}
+          editValue={editValue}
+          editId={editId}
+          setEditValue={setEditValue}
+          handleEdit={handleEdit}
+          dispatch={dispatch}
+          openEdit={openEdit}
+        />
 
-        {renderTasks(
-            todos.filter((item) => !item.status),
-            "In Progress"
-        )}
-
-        {renderTasks(
-            todos.filter((item) => item.status),
-            "Completed"
-        )}
-        </div>
+        <RenderTasks
+          tasks={todos.filter((item) => !item.status)}
+          title={"In Progress"}
+          editValue={editValue}
+          editId={editId}
+          setEditValue={setEditValue}
+          handleEdit={handleEdit}
+          dispatch={dispatch}
+          openEdit={openEdit}
+        />
+        <RenderTasks
+          tasks={todos.filter((item) => item.status)}
+          title={"Completed"}
+          editValue={editValue}
+          editId={editId}
+          setEditValue={setEditValue}
+          handleEdit={handleEdit}
+          dispatch={dispatch}
+          openEdit={openEdit}
+        />
+      </div>
     </section>
   );
 };
